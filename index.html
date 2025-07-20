@@ -220,16 +220,18 @@
 
     <!-- Le composant model-viewer pour l'AR -->
     <model-viewer
-    id="ar-model"
-    src=".\elephant.glb" alt="Mascotte Animée"
+    src=".\elephant.glb"
+    alt="Mascotte Animée"
     ar
     ar-modes="webxr scene-viewer quick-look"
     camera-controls
     shadow-intensity="1"
     autoplay
-    animation-name="Animation0" disable-zoom
+    animation-name="Animation0"
+    disable-zoom
     loading="eager"
-    style="display: none;" ></model-viewer>
+    style="display: none;"
+></model-viewer>
 
     <!-- Contrôles de l'interface utilisateur -->
     <div id="controls" style="display: none;"> <!-- Caché initialement, affiché après l'intro -->
