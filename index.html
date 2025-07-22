@@ -20,50 +20,49 @@
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
-            overflow: hidden; /* Empêche le défilement et assure que l'AR prend tout l'écran */
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: #f0f4f8; /* Couleur de fond douce */
+            background-color: #f0f4f8;
         }
 
-        /* Styles pour l'écran d'introduction */
         #intro-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #ffffff; /* Fond blanc pour l'intro */
+            background-color: #ffffff;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000; /* Assure que l'intro est au-dessus de tout */
+            z-index: 1000;
             opacity: 1;
-            transition: opacity 1.5s ease-out; /* Effet de fondu */
+            transition: opacity 1.5s ease-out;
         }
 
         #intro-screen.fade-out {
             opacity: 0;
-            pointer-events: none; /* Désactive les événements une fois fondu */
+            pointer-events: none;
         }
 
         #logo-container {
             position: relative;
-            width: 200px; /* Taille du logo */
+            width: 200px;
             height: 200px;
             display: flex;
             justify-content: center;
             align-items: center;
-            animation: pulse 2s infinite alternate; /* Animation de pulsation légère */
+            animation: pulse 2s infinite alternate;
         }
 
         #logo {
             max-width: 100%;
             max-height: 100%;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)); /* Ombre légère */
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
         }
 
         @keyframes pulse {
@@ -71,35 +70,33 @@
             100% { transform: scale(1.05); }
         }
 
-        /* Styles pour model-viewer */
         model-viewer {
             width: 100%;
-            height: 100vh; /* Prend toute la hauteur de la fenêtre */
-            background-color: transparent; /* Permet de voir l'environnement AR */
+            height: 100vh;
+            background-color: transparent;
             --mv-background-color: transparent;
-            --mv-shadow-intensity: 0.5; /* Intensité de l'ombre du modèle */
-            --mv-shadow-softness: 0.8; /* Douceur de l'ombre */
+            --mv-shadow-intensity: 0.5;
+            --mv-shadow-softness: 0.8;
         }
 
-        /* Styles pour les contrôles UI */
         #controls {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            flex-wrap: wrap; /* Permet aux boutons de s'enrouler sur mobile */
+            flex-wrap: wrap;
             justify-content: center;
-            gap: 12px; /* Espacement entre les boutons */
-            z-index: 999; /* Au-dessus de model-viewer */
+            gap: 12px;
+            z-index: 999;
             padding: 10px;
-            background: rgba(255, 255, 255, 0.8); /* Fond semi-transparent pour les contrôles */
+            background: rgba(255, 255, 255, 0.8);
             border-radius: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
         }
 
         .action-button {
-            background-color: #4CAF50; /* Vert pour le bouton photo */
+            background-color: #4CAF50;
             color: white;
             padding: 14px 24px;
             border: none;
@@ -126,7 +123,7 @@
         }
 
         .language-button {
-            background-color: #007bff; /* Bleu pour les boutons de langue */
+            background-color: #007bff;
             color: white;
             padding: 14px 24px;
             border: none;
@@ -150,18 +147,16 @@
         }
 
         .language-button.active {
-            background-color: #28a745; /* Vert plus foncé pour la langue active */
+            background-color: #28a745;
             box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
-        /* Icônes pour les boutons */
         .icon {
             width: 24px;
             height: 24px;
-            fill: currentColor; /* Permet à l'icône de prendre la couleur du texte du bouton */
+            fill: currentColor;
         }
 
-        /* Styles pour le message de chargement/erreur */
         #message-box {
             position: fixed;
             top: 50%;
@@ -172,8 +167,8 @@
             padding: 15px 25px;
             border-radius: 10px;
             text-align: center;
-            z-index: 1001; /* Au-dessus de tout */
-            display: none; /* Caché par défaut */
+            z-index: 1001;
+            display: none;
             font-size: 1.2rem;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
@@ -182,15 +177,14 @@
             display: block;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 640px) {
             #controls {
-                flex-direction: column; /* Empile les boutons sur les petits écrans */
+                flex-direction: column;
                 width: 90%;
                 bottom: 10px;
             }
             .action-button, .language-button {
-                width: 100%; /* Les boutons prennent toute la largeur disponible */
+                width: 100%;
                 padding: 12px 20px;
                 font-size: 1rem;
             }
@@ -214,8 +208,7 @@
 
     <model-viewer
         id="ar-model"
-        src="./shiba.glb"
-        alt="shiba"
+        src="./shiba.glb" alt="shiba"
         ar
         ar-modes="webxr scene-viewer quick-look"
         camera-controls
@@ -283,9 +276,11 @@
                 controls.style.display = 'flex';
                 playAudio(currentAudio);
 
+                // Vérifier la disponibilité de screenshot avant d'attacher l'écouteur
                 const checkScreenshotReady = setInterval(() => {
                     if (arModel && typeof arModel.screenshot === 'function' && !photoButtonListenerAdded) {
                         clearInterval(checkScreenshotReady);
+                        console.log("SUCCESS: arModel.screenshot est une fonction. Attaching listener au bouton photo.");
                         photoButton.addEventListener('click', async () => {
                             try {
                                 showMessage('Capture de l\'image en cours...', 2000);
@@ -310,11 +305,10 @@
                             }
                         });
                         photoButtonListenerAdded = true;
-                        console.log("Écouteur du bouton photo ajouté. arModel.screenshot est une fonction.");
                     } else {
-                        console.log("Attente de la disponibilité de arModel.screenshot. Type actuel:", typeof arModel.screenshot);
+                        console.log("DEBUG: Attente de la disponibilité de arModel.screenshot. Type actuel:", typeof arModel.screenshot);
                     }
-                }, 100);
+                }, 100); // Vérifie toutes les 100ms
             });
 
             arModel.addEventListener('error', (event) => {
