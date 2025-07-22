@@ -214,8 +214,7 @@
 
     <model-viewer
         id="ar-model"
-        src="./shiba.glb"
-        alt="shiba"
+        src="./shiba.glb" alt="shiba"
         ar
         ar-modes="webxr scene-viewer quick-look"
         camera-controls
@@ -274,10 +273,7 @@
                 introScreen.classList.add('fade-out');
                 setTimeout(() => {
                     introScreen.style.display = 'none';
-                    // Le modèle et les contrôles ne s'affichent que si le modèle est chargé avec succès
-                    // ou s'il y a une erreur de chargement gérée.
-                    // On ne les rend visibles qu'après le chargement ou une erreur,
-                    // et non juste après la fin de l'intro pour éviter un écran vide.
+                    // Le modèle et les contrôles seront affichés par l'événement 'load' ou 'error' du model-viewer
                 }, 1500); // Durée du fondu
             }, 3000); // Durée d'affichage du logo
 
@@ -288,12 +284,38 @@
                 arModel.style.display = 'block'; // Affiche le modèle AR seulement APRES le chargement réussi
                 controls.style.display = 'flex'; // Affiche les contrôles seulement APRES le chargement réussi
                 playAudio(currentAudio); // Tente de jouer l'audio par défaut après le chargement du modèle
+
+                // *** DÉPLACEMENT DU LISTENER DU BOUTON PHOTO ICI ***
+                // Ceci s'assure que arModel.screenshot est disponible
+                photoButton.addEventListener('click', async () => {
+                    try {
+                        showMessage('Capture de l\'image en cours...', 2000);
+                        const blob = await arModel.screenshot({ idealAspect: true, output: 'image/png' }); // Spécifier le format PNG
+
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'mascotte-ar.png';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        showMessage('Image capturée et téléchargée !', 2000);
+                    } catch (error) {
+                        console.error('Erreur lors de la capture de la photo:', error);
+                        if (error.name === "SecurityError") {
+                            showMessage('Impossible de capturer la photo (restriction de sécurité). Assurez-vous que le modèle est sur le même domaine.', 5000);
+                        } else {
+                            showMessage('Impossible de capturer la photo. Erreur: ' + error.message, 5000);
+                        }
+                    }
+                });
+                // ***************************************************
             });
 
             arModel.addEventListener('error', (event) => {
                 console.error('Erreur lors du chargement du modèle 3D:', event);
                 showMessage('Erreur de chargement du modèle 3D. Vérifiez le chemin du fichier et sa taille.', 0); // 0 pour garder le message
-                // N'affiche pas le modèle ni les contrôles si le modèle n'a pas pu être chargé
                 arModel.style.display = 'none'; // S'assure qu'il reste caché en cas d'erreur
                 controls.style.display = 'none'; // S'assure que les contrôles restent cachés en cas d'erreur
             });
@@ -307,7 +329,6 @@
                 currentAudio = audioElement;
                 currentAudio.play().catch(e => {
                     console.warn("Erreur de lecture audio (peut nécessiter une interaction utilisateur):", e);
-                    // Pas besoin de showMessage ici, car cela pourrait apparaître trop souvent
                 });
             }
 
@@ -339,36 +360,9 @@
             langArButton.addEventListener('click', () => setLanguage('ar'));
             langEnButton.addEventListener('click', () => setLanguage('en'));
 
-            // --- Gestion du bouton photo ---
-            photoButton.addEventListener('click', async () => {
-                try {
-                    showMessage('Capture de l\'image en cours...', 2000);
-                    const blob = await arModel.screenshot({ idealAspect: true, output: 'image/png' }); // Spécifier le format PNG
-
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'mascotte-ar.png';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    showMessage('Image capturée et téléchargée !', 2000);
-                } catch (error) {
-                    console.error('Erreur lors de la capture de la photo:', error);
-                    // Message plus explicite pour l'utilisateur
-                    if (error.name === "SecurityError") {
-                        showMessage('Impossible de capturer la photo (restriction de sécurité). Assurez-vous que le modèle et la page sont sur le même domaine.', 5000);
-                    } else {
-                        showMessage('Impossible de capturer la photo. Erreur: ' + error.message, 5000);
-                    }
-                }
-            });
-
             // Déclenche la lecture audio après la première interaction utilisateur
             // Ceci est crucial pour les politiques de lecture automatique des navigateurs
             document.body.addEventListener('click', () => {
-                // S'assure que l'audio ne tente de jouer qu'une fois la page principale visible
                 if (arModel.style.display === 'block' && currentAudio.paused) {
                     playAudio(currentAudio);
                 }
