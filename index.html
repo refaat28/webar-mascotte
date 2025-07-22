@@ -20,65 +20,167 @@
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
-            overflow: hidden; /* Empêche le défilement et assure que l'AR prend tout l'écran */
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: #f0f4f8; /* Couleur de fond douce */
+            background-color: #f0f4f8;
         }
 
-        /* Styles pour l'écran d'introduction */
-        #intro-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #ffffff; /* Fond blanc pour l'intro */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000; /* Assure que l'intro est au-dessus de tout */
-            opacity: 1;
-            transition: opacity 1.5s ease-out; /* Effet de fondu */
-        }
-
-        #intro-screen.fade-out {
-            opacity: 0;
-            pointer-events: none; /* Désactive les événements une fois fondu */
-        }
-
-        #logo-container {
-            position: relative;
-            width: 200px; /* Taille du logo */
-            height: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            animation: pulse 2s infinite alternate; /* Animation de pulsation légère */
-        }
-
-        #logo {
-            max-width: 100%;
-            max-height: 100%;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)); /* Ombre légère */
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.05); }
-        }
-
-        /* Styles pour model-viewer */
+        /* Gardez les styles de model-viewer */
         model-viewer {
             width: 100%;
-            height: 100vh; /* Prend toute la hauteur de la fenêtre */
-            background-color: transparent; /* Permet de voir l'environnement AR */
+            height: 100vh;
+            background-color: transparent;
             --mv-background-color: transparent;
-            --mv-shadow-intensity: 0.5; /* Intensité de l'ombre du modèle */
-            --mv-shadow-softness: 0.8; /* Douceur de l'ombre */
+            --mv-shadow-intensity: 0.5;
+            --mv-shadow-softness: 0.8;
+            /* Le modèle sera visible dès le début dans ce test */
+            display: block; 
         }
 
-        /* Styles pour les contrô
+        /* Styles pour les contrôles UI - gardez-les simples pour le test */
+        #controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            z-index: 999;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* Gardez aussi les styles du message box */
+        #message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1001;
+            display: none;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #message-box.show {
+            display: block;
+        }
+    </style>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+</head>
+<body>
+
+    <div id="message-box"></div>
+
+    <model-viewer
+        id="ar-model"
+        src="./shiba.glb" alt="shiba"
+        ar
+        ar-modes="webxr scene-viewer quick-look"
+        camera-controls
+        shadow-intensity="1"
+        autoplay
+        animation-name="Animation0"
+        disable-zoom
+        loading="eager"
+        crossorigin="anonymous"
+        style="width: 100%; height: 100vh; background-color: transparent;"
+    ></model-viewer>
+
+    <div id="controls">
+        <button id="photo-button" class="action-button">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 5h-3.17L15 3H9L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            Photo
+        </button>
+        </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const arModel = document.getElementById('ar-model');
+            const photoButton = document.getElementById('photo-button');
+            const messageBox = document.getElementById('message-box');
+
+            function showMessage(msg, duration = 3000) {
+                messageBox.textContent = msg;
+                messageBox.classList.add('show');
+                if (duration > 0) {
+                    setTimeout(() => {
+                        messageBox.classList.remove('show');
+                    }, duration);
+                }
+            }
+
+            // Attendre que l'élément model-viewer soit "prêt"
+            // Utiliser un délai significatif pour s'assurer de l'initialisation
+            setTimeout(() => {
+                console.log("Après 3 secondes, vérification de arModel:");
+                console.log("arModel:", arModel);
+                console.log("typeof arModel.screenshot:", typeof arModel.screenshot);
+
+                if (arModel && typeof arModel.screenshot === 'function') {
+                    console.log("arModel.screenshot est une fonction. Attaching listener.");
+                    photoButton.addEventListener('click', async () => {
+                        try {
+                            showMessage('Capture de l\'image en cours...', 2000);
+                            const blob = await arModel.screenshot({ idealAspect: true, output: 'image/png' });
+
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'mascotte-ar.png';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                            showMessage('Image capturée et téléchargée !', 2000);
+                        } catch (error) {
+                            console.error('Erreur lors de la capture de la photo:', error);
+                            if (error.name === "SecurityError") {
+                                showMessage('Impossible de capturer la photo (restriction de sécurité).', 5000);
+                            } else {
+                                showMessage('Impossible de capturer la photo. Erreur: ' + error.message, 5000);
+                            }
+                        }
+                    });
+                } else {
+                    showMessage('Erreur: La fonction de capture n\'est pas disponible.', 0);
+                    console.error("arModel.screenshot n'est PAS une fonction même après un délai.");
+                }
+            }, 3000); // Attendre 3 secondes après DOMContentLoaded
+        });
+    </script>
+</body>
+</html>
